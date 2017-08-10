@@ -1,3 +1,0 @@
-/home/oisin/Development/Udacity/CarND-Path-Planning-Project/build/CMakeFiles/edit_cache.dir
-/home/oisin/Development/Udacity/CarND-Path-Planning-Project/build/CMakeFiles/path_planning.dir
-/home/oisin/Development/Udacity/CarND-Path-Planning-Project/build/CMakeFiles/rebuild_cache.dir

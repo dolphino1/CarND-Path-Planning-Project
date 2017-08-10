@@ -161,7 +161,7 @@ vector<double> getXY(double s, double d, vector<double> maps_s, vector<double> m
 }
 
 int lane = 1;
-double ref_vel = 49.5;
+double ref_vel = 0.0;
 
 
 int main() {
@@ -243,6 +243,49 @@ int main() {
 
             int prev_size = previous_path_y.size();
 
+            if(prev_size > 0)
+            {
+                car_s = end_path_s;
+            }
+
+            bool too_close = false;
+
+            //find rev_v to use 
+            for(int i = 0; i < sensor_fusion.size(); i ++)
+            {
+                //car is in my lane
+                float d = sensor_fusion[i][6];
+                if(d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2))
+                {
+                    double vx = sensor_fusion[i][3];
+                    double vy = sensor_fusion[i][4];
+                    double check_speed = sqrt(vx * vx + vy * vy);
+                    double check_car_s = sensor_fusion[i][5];
+
+                    check_car_s += ((double)prev_size * 0.02 * check_speed);
+
+                    if((check_car_s > car_s) && ((check_car_s - car_s) < 30))
+                    {
+                        too_close = true;
+
+                        if(lane >0)
+                        {
+                            lane = 0;
+                        }
+                    }
+
+                }
+            }
+            if(too_close)
+            {
+                ref_vel -= .224;
+            }
+            else if(ref_vel < 49.5)
+            {
+                ref_vel += .224;
+            }
+
+
           	vector<double> ptsx;
           	vector<double> ptsy;
 
@@ -296,7 +339,7 @@ int main() {
                 double shift_y = ptsy[i] - ref_y;
 
                 ptsx[i] = (shift_x * cos(0 - ref_yaw) - shift_y * sin(0 - ref_yaw));
-                ptsy[i] = (shift_y * sin(0 - ref_yaw) - shift_y * cos(0 - ref_yaw));
+                ptsy[i] = (shift_x * sin(0 - ref_yaw) + shift_y * cos(0 - ref_yaw));
             }
 
             tk::spline s;
@@ -319,8 +362,8 @@ int main() {
             double x_add_on = 0;
 
             for(int i =1; i <= 50 - previous_path_x.size(); i++){
-                double N = (target_dist /(0.2 * ref_vel / 2.24));
-                double x_point = x_add_on + target_x / N;
+                double N = (target_dist /(0.02 * ref_vel / 2.24));
+                double x_point = x_add_on + (target_x)/N;
                 double y_point = s(x_point);
 
                 x_add_on = x_point;
