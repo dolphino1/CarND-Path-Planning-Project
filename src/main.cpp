@@ -326,15 +326,6 @@ int main() {
                             } 
                         }
 
-                        // if(lane > 0)
-                        // {
-                        //     lane = 0;
-                        // }
-                        // if(lane==0)
-                        // {
-                        //     lane = 1;
-                        // }
-
                     }
 
                 }
@@ -347,7 +338,6 @@ int main() {
             {
                 ref_vel += .224;
             }
-
 
           	vector<double> ptsx;
           	vector<double> ptsy;
