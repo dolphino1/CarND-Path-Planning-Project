@@ -159,7 +159,40 @@ vector<double> getXY(double s, double d, vector<double> maps_s, vector<double> m
 	return {x,y};
 
 }
+/*
+##############################################################################
+#### Begin
+##########
+*/
 
+bool changeLane(int new_lane, vector< vector<double>> sensor_data, int prev_size, double car_s){
+    for(int i = 0; i < sensor_data.size(); i ++)
+    {
+        float d = sensor_data[i][6];
+        if(d < (2 + 4 * new_lane + 2) && d > (2 + 4 * new_lane - 2))
+        {
+            double vx = sensor_data[i][3];
+            double vy = sensor_data[i][4];
+            double check_speed = sqrt(vx * vx + vy * vy);
+            double check_car_s = sensor_data[i][5];
+
+            // Nearly there just have to get this part right
+            
+            // how far forward is the car
+            check_car_s += ((double)prev_size * 0.02 * check_speed);
+
+            if((check_car_s - car_s < 30) && ((check_car_s - car_s) > -30))
+            {
+                return false;
+            }
+
+        }
+    }
+    return true;
+}
+
+
+//initial settings
 int lane = 1;
 double ref_vel = 0.0;
 
@@ -267,11 +300,41 @@ int main() {
                     if((check_car_s > car_s) && ((check_car_s - car_s) < 30))
                     {
                         too_close = true;
+                        if(lane == 0){
+                            bool check_right = changeLane(1, sensor_fusion, prev_size, car_s);
+                            if(check_right){
+                                lane = 1;
+                            }
 
-                        if(lane >0)
-                        {
-                            lane = 0;
                         }
+                        if(lane == 1){
+                            bool check_left = changeLane(0, sensor_fusion, prev_size, car_s);
+                            if(check_left){
+                                lane = 0;
+                            }
+                            else{
+                                bool check_right = changeLane(2, sensor_fusion, prev_size, car_s);
+                                if(check_right){
+                                    lane = 2;
+                                }
+                            }
+                        }
+                        if( lane == 2){
+                            bool check_left = changeLane(1, sensor_fusion, prev_size, car_s);
+                            if(check_left){
+                                lane = 1;
+                            } 
+                        }
+
+                        // if(lane > 0)
+                        // {
+                        //     lane = 0;
+                        // }
+                        // if(lane==0)
+                        // {
+                        //     lane = 1;
+                        // }
+
                     }
 
                 }
@@ -399,6 +462,11 @@ int main() {
       }
     }
   });
+/*
+##############################################################################
+########## END
+##################
+*/
 
   // We don't need this since we're not using HTTP but if it's removed the
   // program
